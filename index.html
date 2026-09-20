@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>První Vánoce Elenky</title>
+<meta name="description" content="Seznam dárků pro Elenku – vyberte si, co obstaráte vy.">
+<meta name="theme-color" content="#12452f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vánoce Elenky">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- ===================== VEŘEJNÁ ČÁST ===================== -->
+<main id="view-public">
+  <header class="hero">
+    <div class="snow" aria-hidden="true"></div>
+    <div class="hero-badge" aria-hidden="true">🎄</div>
+    <h1>První Vánoce Elenky</h1>
+    <p class="hero-text">
+      Moc děkujeme, že na Elenku myslíte. Tady je seznam věcí, které jí pod stromečkem
+      udělají radost.
+    </p>
+    <p id="summary" class="summary"></p>
+  </header>
+  <div class="hero-ribbon" aria-hidden="true"></div>
+
+  <div id="install-hint" class="install-hint" hidden>
+    <span id="install-text">Aplikaci si můžete přidat na plochu telefonu.</span>
+    <button id="install-btn" class="btn btn-sm" type="button" hidden>Přidat na plochu</button>
+    <button id="install-close" class="icon-btn" type="button" aria-label="Zavřít">✕</button>
+  </div>
+
+  <nav class="filters" role="tablist" aria-label="Filtr dárků">
+    <button class="filter is-active" data-filter="all"       role="tab" type="button">Vše</button>
+    <button class="filter"           data-filter="free"      role="tab" type="button">Volné</button>
+    <button class="filter"           data-filter="claimed"   role="tab" type="button">Zamluvené</button>
+  </nav>
+
+  <div id="state" class="state">Načítám seznam…</div>
+  <ul id="gift-list" class="gift-list"></ul>
+
+  <footer class="page-footer">
+    <button id="refresh-btn" class="btn btn-ghost" type="button">Načíst znovu</button>
+    <a class="admin-link" href="#admin">Správa seznamu</a>
+  </footer>
+  <p class="footer-note">Krásné Vánoce a díky, že na Elenku myslíte. ❄️</p>
+</main>
+
+<!-- ===================== SPRÁVCE ===================== -->
+<main id="view-admin" hidden>
+  <header class="hero hero-admin">
+    <div class="snow" aria-hidden="true"></div>
+    <h1>Správa seznamu</h1>
+    <a class="btn btn-ghost btn-sm" href="#">← Zpět na seznam</a>
+  </header>
+  <div class="hero-ribbon" aria-hidden="true"></div>
+
+  <!-- přihlášení -->
+  <section id="admin-login" class="card">
+    <h2>Přihlášení</h2>
+    <form id="login-form" class="form">
+      <label>E-mail
+        <input id="login-email" type="email" autocomplete="username" required>
+      </label>
+      <label>Heslo
+        <input id="login-password" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="login-error" class="form-error" hidden></p>
+      <button class="btn btn-primary" type="submit">Přihlásit se</button>
+    </form>
+  </section>
+
+  <!-- panel správce -->
+  <section id="admin-panel" hidden>
+    <div class="card">
+      <h2 id="gift-form-title">Nový dárek</h2>
+      <form id="gift-form" class="form">
+        <input type="hidden" id="gift-id">
+        <label>Název *
+          <input id="gift-title" maxlength="120" required>
+        </label>
+        <label>Popis
+          <textarea id="gift-description" maxlength="500" rows="2"></textarea>
+        </label>
+        <label>Odkaz do e-shopu
+          <input id="gift-url" type="url" maxlength="500" placeholder="https://…">
+        </label>
+        <div class="form-row">
+          <label>Orientační cena
+            <input id="gift-price" maxlength="60" placeholder="cca 500 Kč">
+          </label>
+          <label>Pořadí
+            <input id="gift-order" type="number" step="10" value="0">
+          </label>
+        </div>
+        <p id="gift-form-error" class="form-error" hidden></p>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Uložit</button>
+          <button id="gift-form-cancel" class="btn btn-ghost" type="button" hidden>Zrušit úpravy</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="admin-state" class="state" hidden></div>
+    <ul id="admin-list" class="gift-list admin-list"></ul>
+
+    <footer class="page-footer">
+      <button id="logout-btn" class="btn btn-ghost" type="button">Odhlásit se</button>
+    </footer>
+  </section>
+</main>
+
+<!-- ===================== DIALOG ZAMLUVENÍ ===================== -->
+<dialog id="claim-dialog" class="dialog">
+  <form id="claim-form" method="dialog" class="form">
+    <h2 id="claim-title">Zamluvit dárek</h2>
+    <p class="dialog-gift" id="claim-gift-name"></p>
+    <label>Vaše jméno
+      <input id="claim-name" maxlength="60" required placeholder="např. babička Jana" autocomplete="name">
+    </label>
+    <p class="hint">Jméno uvidíme jen my. Ostatním se zobrazí pouze „Zamluveno“.</p>
+    <p id="claim-error" class="form-error" hidden></p>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="claim-submit" value="ok">Zamluvit</button>
+      <button class="btn btn-ghost" value="cancel" formnovalidate>Zpět</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ===================== POTVRZENÍ ===================== -->
+<dialog id="confirm-dialog" class="dialog">
+  <form method="dialog" class="form">
+    <h2 id="confirm-title">Opravdu?</h2>
+    <p id="confirm-text" class="dialog-gift"></p>
+    <div class="form-actions">
+      <button class="btn btn-danger" value="ok">Ano</button>
+      <button class="btn btn-ghost" value="cancel">Ne</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
