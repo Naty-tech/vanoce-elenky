@@ -6,7 +6,8 @@
   'use strict';
 
   var CFG = window.APP_CONFIG || {};
-  var API = String(CFG.SUPABASE_URL || '').replace(/\/+$/, '');
+  // Snese i adresu zkopírovanou i s koncovkou /rest/v1/
+  var API = String(CFG.SUPABASE_URL || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/i, '');
   var KEY = String(CFG.SUPABASE_ANON_KEY || '');
   var CONFIGURED = API !== '' && KEY !== '';
 
@@ -547,23 +548,13 @@
 
   function setupInstallHint() {
     var box = $('install-hint');
-    if (lsGet(LS_INSTALL, false)) return;
+    var isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+    box.hidden = true;
 
-    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (standalone) return;
-
-    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (isIOS) {
-      $('install-text').textContent = 'Tip: přidejte si aplikaci na plochu – v Safari klepněte na ikonu Sdílet a zvolte „Přidat na plochu“.';
-      box.hidden = false;
-    }
-
-    window.addEventListener('beforeinstallprompt', function (e) {
-      e.preventDefault();
-      deferredPrompt = e;
-      $('install-text').textContent = 'Aplikaci si můžete přidat na plochu telefonu.';
-      $('install-btn').hidden = false;
-      box.hidden = false;
+    // Křížek musí fungovat vždy, i když se lišta nakonec vůbec nenabídne.
+    $('install-close').addEventListener('click', function () {
+      box.hidden = true;
+      lsSet(LS_INSTALL, true);
     });
 
     $('install-btn').addEventListener('click', async function () {
@@ -574,9 +565,30 @@
       box.hidden = true;
     });
 
-    $('install-close').addEventListener('click', function () {
+    // Po instalaci lištu schováme a už ji nikdy nenabízíme.
+    window.addEventListener('appinstalled', function () {
       box.hidden = true;
       lsSet(LS_INSTALL, true);
+    });
+
+    // Už nainstalováno nebo jednou odmítnuto – lištu vůbec nenabízíme.
+    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (standalone || lsGet(LS_INSTALL, false)) return;
+
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+      $('install-text').textContent = 'Tip: přidejte si aplikaci na plochu – v Safari klepněte na ikonu Sdílet a zvolte „Přidat na plochu“.';
+      box.hidden = false;
+    }
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      $('install-text').textContent = isMobile
+        ? 'Aplikaci si můžete přidat na plochu telefonu.'
+        : 'Aplikaci si můžete nainstalovat do počítače.';
+      $('install-btn').textContent = isMobile ? 'Přidat na plochu' : 'Nainstalovat';
+      $('install-btn').hidden = false;
+      box.hidden = false;
     });
   }
 

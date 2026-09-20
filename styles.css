@@ -38,6 +38,9 @@
 
 * { box-sizing: border-box; }
 
+/* Atribut hidden musí přebít i prvky, které mají vlastní display (např. flex). */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   padding: 0 16px calc(32px + env(safe-area-inset-bottom));
