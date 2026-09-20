@@ -9,7 +9,7 @@
  *  na pravidlech v databázi (viz supabase/schema.sql), ne na jeho utajení.
  * ==========================================================================*/
 window.APP_CONFIG = {
-  SUPABASE_URL: "https://smqvpjlcuebigtvzxmos.supabase.co/rest/v1/",
+  SUPABASE_URL: "https://smqvpjlcuebigtvzxmos.supabase.co",
   SUPABASE_ANON_KEY: "sb_publishable_1UvGt28UCE_CweF4MFSCNw_ahSACuln",
 
   // Nadpis aplikace – klidně změňte
