@@ -4,7 +4,7 @@
  *  Při každé úpravě souborů aplikace zvyšte CACHE_VERSION (v2, v3, …),
  *  aby si telefony stáhly novou verzi.
  * ==========================================================================*/
-var CACHE_VERSION = 'darky-v6';
+var CACHE_VERSION = 'darky-v7';
 
 var SHELL = [
   './',

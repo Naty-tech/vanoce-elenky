@@ -46,6 +46,29 @@
     });
   }
 
+  // "1500" -> "1 500 Kč"; volný text (třeba "podle výběru") necháme být.
+  function formatPrice(raw) {
+    var text = String(raw == null ? '' : raw).trim();
+    if (!text) return null;
+
+    var m = text.match(/^(cca|asi|přibližně|od|do|~)?\s*([\d\s.,]+)\s*(kč|kc|czk|,-)?$/i);
+    if (!m) return text;
+
+    var num = m[2].replace(/\s/g, '').replace(',', '.');
+    // Tečka bývá oddělovač tisíců (1.500), ne desetinná část.
+    if (/^\d{1,3}(\.\d{3})+$/.test(num)) num = num.replace(/\./g, '');
+
+    var n = parseFloat(num);
+    if (!isFinite(n) || n < 0) return text;
+
+    var cele = Math.floor(n);
+    var desetiny = Math.round((n - cele) * 100);
+    var out = String(cele).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    if (desetiny) out += ',' + (desetiny < 10 ? '0' + desetiny : desetiny);
+
+    return (m[1] ? m[1].toLowerCase() + ' ' : '') + out + ' ' + 'Kč';
+  }
+
   var toastTimer = null;
   function toast(message) {
     var t = $('toast');
@@ -434,7 +457,7 @@
       title: $('gift-title').value.trim(),
       description: $('gift-description').value.trim() || null,
       url: $('gift-url').value.trim() || null,
-      price_hint: $('gift-price').value.trim() || null
+      price_hint: formatPrice($('gift-price').value)
     };
     // Nový dárek se zařadí na konec seznamu; u úprav pořadí neměníme.
     if (!id) payload.sort_order = nextSortOrder();
@@ -614,6 +637,10 @@
     $('login-form').addEventListener('submit', onLogin);
     $('gift-form').addEventListener('submit', saveGift);
     $('gift-form-cancel').addEventListener('click', function () { fillGiftForm(null); });
+    $('gift-price').addEventListener('blur', function () {
+      var v = formatPrice(this.value);
+      this.value = v == null ? '' : v;
+    });
     $('logout-btn').addEventListener('click', onLogout);
 
     window.addEventListener('hashchange', route);
