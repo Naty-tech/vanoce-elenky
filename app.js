@@ -393,8 +393,6 @@
   function renderAdmin() {
     var list = $('admin-list');
     list.textContent = '';
-    // Pořadí pro nový dárek se dopočítá až podle načteného seznamu.
-    if (!$('gift-id').value) $('gift-order').value = nextSortOrder();
     if (!adminGifts.length) { setAdminState('Zatím tu není žádný dárek. Přidejte první výše.', false); return; }
     setAdminState('', false);
     adminGifts.forEach(function (g) { list.appendChild(adminCard(g)); });
@@ -419,7 +417,6 @@
     $('gift-description').value = gift && gift.description ? gift.description : '';
     $('gift-url').value         = gift && gift.url ? gift.url : '';
     $('gift-price').value       = gift && gift.price_hint ? gift.price_hint : '';
-    $('gift-order').value       = gift ? gift.sort_order : nextSortOrder();
     $('gift-form-cancel').hidden = !gift;
     $('gift-form-error').hidden = true;
     if (gift) $('gift-form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -437,9 +434,10 @@
       title: $('gift-title').value.trim(),
       description: $('gift-description').value.trim() || null,
       url: $('gift-url').value.trim() || null,
-      price_hint: $('gift-price').value.trim() || null,
-      sort_order: parseInt($('gift-order').value, 10) || 0
+      price_hint: $('gift-price').value.trim() || null
     };
+    // Nový dárek se zařadí na konec seznamu; u úprav pořadí neměníme.
+    if (!id) payload.sort_order = nextSortOrder();
     if (!payload.title) { showFormError('Zadejte prosím název dárku.'); return; }
 
     var button = $('gift-form').querySelector('button[type="submit"]');
