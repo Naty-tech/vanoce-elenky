@@ -281,6 +281,31 @@ main { max-width: 640px; margin: 0 auto; }
 .dialog h2 { margin: 0; font-size: 1.15rem; }
 .dialog-gift { margin: 0; color: var(--muted); font-size: .9rem; }
 
+/* ------------------------------------------------- fotka od Elenky -- */
+.photo-dialog { padding: 14px 14px 18px; text-align: center; }
+.photo-dialog form { display: grid; gap: 8px; justify-items: center; }
+.photo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 58vh;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 3px solid var(--gold-l);
+  margin-bottom: 6px;
+}
+.photo-dialog h2 { font-size: 1.35rem; color: var(--red); margin-top: 4px; }
+.photo-text { margin: 0 0 8px; font-size: .95rem; }
+.photo-dialog .btn { min-width: 140px; }
+.photo-dialog[open] { animation: photo-pop .28s ease-out; }
+@keyframes photo-pop {
+  from { transform: scale(.92); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-dialog[open] { animation: none; }
+}
+
 /* ---------------------------------------------------------------- toast -- */
 .toast {
   position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));

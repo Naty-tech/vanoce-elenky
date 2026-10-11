@@ -266,6 +266,33 @@
     d.showModal();
   }
 
+  // Fotka od Elenky jako poděkování (nebo smutná, když se rezervace zruší).
+  var PHOTOS = {
+    claimed: {
+      src: 'img/zamluveno.jpg',
+      title: 'Zamluveno! 🎁',
+      text: 'Elenka moc děkuje!',
+      alt: 'Usměvavá Elenka'
+    },
+    unclaimed: {
+      src: 'img/odzamluveno.jpg',
+      title: 'Odzamluveno',
+      text: 'Elenka je z toho trochu smutná… ale nevadí, třeba vyberete něco jiného.',
+      alt: 'Smutná Elenka'
+    }
+  };
+
+  function showPhoto(kind, gift) {
+    var p = PHOTOS[kind];
+    $('photo-img').src = p.src;
+    $('photo-img').alt = p.alt;
+    $('photo-title').textContent = p.title;
+    $('photo-gift').textContent = gift ? gift.title : '';
+    $('photo-text').textContent = p.text;
+    var d = $('photo-dialog');
+    if (!d.open) d.showModal();
+  }
+
   async function doClaim() {
     var gift = claimTarget;
     if (!gift) return;
@@ -281,7 +308,7 @@
         myClaims[gift.id] = token;
         lsSet(LS_CLAIMS, myClaims);
         lsSet(LS_NAME, name);
-        toast('Hotovo, děkujeme! Dárek je zamluvený pro vás.');
+        showPhoto('claimed', gift);
       }
     } catch (e) {
       toast(e.message);
@@ -297,7 +324,8 @@
       var done = await rpc('unclaim_gift', { p_id: gift.id, p_token: myClaims[gift.id] });
       delete myClaims[gift.id];
       lsSet(LS_CLAIMS, myClaims);
-      toast(done === false ? 'Rezervaci už zrušil někdo jiný.' : 'Rezervace zrušena.');
+      if (done === false) toast('Rezervaci už zrušil někdo jiný.');
+      else showPhoto('unclaimed', gift);
     } catch (e) {
       toast(e.message);
       if (button) button.disabled = false;
@@ -634,6 +662,10 @@
     $('claim-dialog').addEventListener('close', function () {
       if ($('claim-dialog').returnValue === 'ok') doClaim();
     });
+    // Fotku jde zavřít i klepnutím vedle ní.
+    $('photo-dialog').addEventListener('click', function (e) {
+      if (e.target === this) this.close();
+    });
     $('login-form').addEventListener('submit', onLogin);
     $('gift-form').addEventListener('submit', saveGift);
     $('gift-form-cancel').addEventListener('click', function () { fillGiftForm(null); });
@@ -658,6 +690,11 @@
         navigator.serviceWorker.register('sw.js').catch(function () { /* nevadí */ });
       });
     }
+
+    // Fotky načteme předem, aby se po zamluvení ukázaly hned.
+    window.addEventListener('load', function () {
+      Object.keys(PHOTOS).forEach(function (k) { new Image().src = PHOTOS[k].src; });
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

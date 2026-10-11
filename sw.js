@@ -4,7 +4,7 @@
  *  Při každé úpravě souborů aplikace zvyšte CACHE_VERSION (v2, v3, …),
  *  aby si telefony stáhly novou verzi.
  * ==========================================================================*/
-var CACHE_VERSION = 'darky-v7';
+var CACHE_VERSION = 'darky-v8';
 
 var SHELL = [
   './',
@@ -16,7 +16,9 @@ var SHELL = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
-  'icons/apple-touch-icon.png'
+  'icons/apple-touch-icon.png',
+  'img/zamluveno.jpg',
+  'img/odzamluveno.jpg'
 ];
 
 self.addEventListener('install', function (event) {
